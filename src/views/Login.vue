@@ -24,13 +24,13 @@
         data() {
             return {
                 ruleForm: {
-                    username: 'bindada',
-                    password: '123456',
+                    username: '',
+                    password: '',
                 },
                 rules: {
                     username: [
                         { required: true, message: '请输入用户名', trigger: 'blur' },
-                        { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+                        { min: 3, max: 15, message: '长度在 3 到 15 个字符', trigger: 'blur' }
                     ],
                     password: [
                         { required: true, message: '请输入密码', trigger: 'change' }
@@ -42,12 +42,16 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        axios.post('http://locahost:8081/login',this.ruleForm).then(
-                            function (response) {
-                                console.log(response.headers)
-                        },
-                            function(err){ }
-                        );
+                        const _this = this;
+                        console.log("校验成功");
+                        _this.$axios.post('http://localhost:8081/login',_this.ruleForm).then(response =>{
+                            const jwt =response.headers['authorization']
+                            const userInfo = response.data.data;
+                            console.log(userInfo);
+                            _this.$store.commit("SET_TOKEN",jwt);
+                            _this.$store.commit("SET_USERINFO",userInfo);
+                            _this.$router.push("/blogs")
+                        });
                     } else {
                         console.log('error submit!!');
                         return false;
@@ -62,22 +66,13 @@
 </script>
 
 <style scoped>
-    .el-header, .el-footer {
+    .el-header{
         background-color: #B3C0D1;
-        color: #333;
-        text-align: center;
         line-height: 60px;
-    }
-
-    .el-aside {
-        background-color: #D3DCE6;
-        color: #333;
         text-align: center;
-        line-height: 200px;
     }
 
     .el-main {
-        background-color: #E9EEF3;
         color: #333;
         text-align: center;
         line-height: 160px;
@@ -89,16 +84,5 @@
         max-width: 500px;
         margin: 0 auto;
     }
-    body > .el-container {
-        margin-bottom: 40px;
-    }
 
-    .el-container:nth-child(5) .el-aside,
-    .el-container:nth-child(6) .el-aside {
-        line-height: 260px;
-    }
-
-    .el-container:nth-child(7) .el-aside {
-        line-height: 320px;
-    }
 </style>
